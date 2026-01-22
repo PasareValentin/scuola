@@ -1,9 +1,6 @@
 @echo off
 setlocal
 
-REM ===============================
-REM PULIZIA FILE TEMPORANEI
-REM ===============================
 echo Pulizia file temporanei...
 
 del /q /f "%TEMP%\*" 2>nul
@@ -15,9 +12,6 @@ for /d %%D in ("C:\Windows\Temp\*") do rd /s /q "%%D" 2>nul
 echo File temporanei eliminati.
 echo.
 
-REM ===============================
-REM IMPOSTAZIONI BACKUP
-REM ===============================
 set SOURCE=J:\
 
 set DESKTOP=%USERPROFILE%\Desktop
@@ -38,3 +32,4 @@ xcopy "%SOURCE%*" "%BACKUPDIR%\" /S /E /I /H /K /Y /C > "%BACKUPDIR%\backup_%DAT
 echo.
 echo Backup completato con successo.
 pause
+
