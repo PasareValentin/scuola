@@ -1,56 +1,40 @@
 @echo off
-setlocal ENABLEDELAYEDEXPANSION
+setlocal
 
-:START
-echo.
-set /p SOURCE="Inserisci il percorso o il disco per il backup (es. C:\) : "
-set "SOURCE=%SOURCE:"=%"
+REM ===============================
+REM PULIZIA FILE TEMPORANEI
+REM ===============================
+echo Pulizia file temporanei...
 
-if not "%SOURCE:~-1%"=="\" set "SOURCE=%SOURCE%\"
+del /q /f "%TEMP%\*" 2>nul
+for /d %%D in ("%TEMP%\*") do rd /s /q "%%D" 2>nul
 
-if not exist "%SOURCE%" (
-    echo Percorso non valido, riprova.
-    pause
-    goto START
-)
+del /q /f "C:\Windows\Temp\*" 2>nul
+for /d %%D in ("C:\Windows\Temp\*") do rd /s /q "%%D" 2>nul
 
-echo.
-echo Hai inserito il seguente percorso:
-echo   %SOURCE%
+echo File temporanei eliminati.
 echo.
 
-choice /M "Confermi l'avvio del backup?"
-if errorlevel 2 (
-    echo Operazione annullata dall'utente.
-    pause
-    goto START
-)
+REM ===============================
+REM IMPOSTAZIONI BACKUP
+REM ===============================
+set SOURCE=J:\
 
-set /p DEST="Inserisci il percorso di destinazione del backup: "
-set "DEST=%DEST:"=%"
-if not "%DEST:~-1%"=="\" set "DEST=%DEST%\"
+set DESKTOP=%USERPROFILE%\Desktop
+set BACKUPDIR=%DESKTOP%\Backup_J
 
-if not exist "%DEST%" (
-    echo La cartella di destinazione non esiste. Creazione in corso...
-    mkdir "%DEST%"
-)
+if not exist "%BACKUPDIR%" mkdir "%BACKUPDIR%"
 
+REM Data per il log
 set DATA=%DATE:~-4%%DATE:~3,2%%DATE:~0,2%
 
-echo.
-echo Avvio backup con XCOPY...
+echo Avvio backup automatico...
 echo Da: %SOURCE%
-echo A : %DEST%
+echo A : %BACKUPDIR%
 echo.
 
-REM Parametri XCOPY:
-REM /S (Sottocartelle) /E (Includi vuote) /I (Se dest non esiste, assumi sia cartella)
-REM /H (File nascosti) /K (Copia attributi) /Y (Sovrascrivi senza chiedere)
-REM /C (Continua anche in caso di errore)
-
-xcopy "%SOURCE%*" "%DEST%" /S /E /I /H /K /Y /C > "%DEST%backup_%DATA%.log"
+xcopy "%SOURCE%*" "%BACKUPDIR%\" /S /E /I /H /K /Y /C > "%BACKUPDIR%\backup_%DATA%.log"
 
 echo.
-echo Backup completato.
+echo Backup completato con successo.
 pause
-goto START
