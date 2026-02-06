@@ -13,3 +13,8 @@ if __name__ == "__main__":
         f_out.write(machine + "\n")
         f_out.write(system + "\n")
         f_out.write(computer_name + "\n")
+         print (piattaforma)
+        print(tempo)
+        print(machine)
+        print(system)
+        print(computer_name)
