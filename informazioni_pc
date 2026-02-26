@@ -1,0 +1,17 @@
+# ,,,,,,,,,,,
+# ,,,,,,,,,,,
+import os
+import platform
+import time
+
+def informazioni_macchina():
+    info = [
+        platform.machine(),
+        platform.system(),
+        platform.platform(),
+        os.getenv("COMPUTERNAME") or os.getenv("HOSTNAME"),
+        str(time.time())
+    ]
+    return info
+with open("n.csv", "w") as f_out:
+    f_out.write(",".join(informazioni_macchina()))
