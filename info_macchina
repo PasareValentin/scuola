@@ -1,0 +1,80 @@
+"""
+Programma per raccogliere informazioni sulla workstation locale e salvarle in append
+nel file CSV, con tracciatura in log.
+
+Informazioni raccolte:
+- timestamp
+- nome computer
+- sistema operativo
+- versione sistema operativo
+- architettura
+- username
+- MAC address
+- IP address
+"""
+import os
+import platform
+import socket
+import uuid
+import time
+from pathlib import Path
+from datetime import datetime
+
+
+def informazioni_macchina():
+    timestamp = str(time.time())
+    hostname = socket.gethostname()
+    computer_name = os.getenv("COMPUTERNAME") or hostname
+    username = os.getenv("USERNAME") or os.getenv("USER") or "unknown"
+    sistema_operativo = platform.system()
+    versione_sistema_operativo = platform.version()
+    architettura = platform.machine()
+    mac = uuid.getnode()
+    mac_address = ''.join(('%012X' % mac)[i:i+2] for i in range(0, 12, 2))  # senza ':'
+    try:
+        ip_address = socket.gethostbyname(hostname)
+    except Exception:
+        ip_address = "0.0.0.0"
+    return [
+        timestamp,
+        computer_name,
+        sistema_operativo,
+        versione_sistema_operativo,
+        architettura,
+        username,
+        mac_address,
+        ip_address
+    ]
+
+
+def scrivi_csv(info):
+    script_dir = Path(__file__).resolve().parent
+    data_dir = script_dir.parent / "data"
+    data_dir.mkdir(exist_ok=True)
+
+    # Nome file fisso
+    file_path = data_dir / "getinfo.csv"
+
+    try:
+        with open(file_path, "a", encoding="utf-8") as f:
+            f.write(";".join(info) + "\n")
+        return file_path, "OK"
+    except Exception as e:
+        return file_path, f"Errore: {e}"
+
+
+def scrivi_log(messaggio):
+    script_dir = Path(__file__).resolve().parent
+    log_dir = script_dir.parent / "log"
+    log_dir.mkdir(exist_ok=True)
+    log_file = log_dir / "execution.log"
+    ora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(log_file, "a", encoding="utf-8") as f:
+        f.write(f"[{ora}] {messaggio}\n")
+
+
+if __name__ == "__main__":
+    info = informazioni_macchina()
+    file_path, status = scrivi_csv(info)
+    scrivi_log(f"{info[1]} -> {file_path} -> {status}")
+    print(f"File CSV aggiornato: {file_path}")
